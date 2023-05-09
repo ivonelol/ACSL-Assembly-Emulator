@@ -101,15 +101,19 @@ fn evaluate_program(mut program Program) {
 			}
 			'ADD' {
 				program.ctx['ACC'] += locv
+				program.ctx['ACC'] %= 1_000_000
 			}
 			'SUB' {
 				program.ctx['ACC'] -= locv
+				program.ctx['ACC'] %= 1_000_000
 			}
 			'MULT' {
 				program.ctx['ACC'] *= locv
+				program.ctx['ACC'] %= 1_000_000
 			}
 			'DIV' {
 				program.ctx['ACC'] /= locv
+				program.ctx['ACC'] %= 1_000_000
 			}
 			'BG' {
 				if program.ctx['ACC'] > 0 {
