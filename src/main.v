@@ -34,14 +34,23 @@ mut:
 }
 
 fn main() {
-	filename := os.args[1] or { panic('no file provided') }
-	lines := os.read_lines(filename) or { panic('cannot read file ${filename}') }
-	mut program := parse_program(lines)
+	filename := os.args[1] or {
+		eprintln('no file provided')
+		exit(1)
+	}
+	lines := os.read_lines(filename) or {
+		eprintln('cannot read file ${filename}')
+		exit(1)
+	}
+	mut program := parse_program(lines) or {
+		eprintln('${err}')
+		exit(1)
+	}
 	evaluate_program(mut program)
 	println(program.ctx)
 }
 
-fn parse_program(lines []string) Program {
+fn parse_program(lines []string) !Program {
 	mut labels := map[string]int{}
 	mut instructions := []Instruction{}
 
@@ -51,11 +60,16 @@ fn parse_program(lines []string) Program {
 		}
 		tokens := line.split(' ')
 		if tokens.len > 3 {
-			panic('too many tokens in line ${i}')
+			return error('too many tokens in line ${i + 1}')
 		}
 		if tokens[0] !in opcodes {
 			label := tokens[0]
-			opcode := tokens[1]
+			opcode := tokens[1] or {
+				return error('missing opcode after label ${label} in line ${i + 1}')
+			}
+			if opcode !in opcodes {
+				return error('unknown opcode ${opcode} in line ${i + 1}')
+			}
 			loc := tokens[2] or { '' }
 			instruction := Instruction{
 				label: label
@@ -63,7 +77,7 @@ fn parse_program(lines []string) Program {
 				loc: loc
 			}
 			instructions << instruction
-			labels[label] = i
+			labels[label] = instructions.len - 1
 		} else {
 			opcode := tokens[0]
 			loc := tokens[1] or { '' }
@@ -138,7 +152,7 @@ fn evaluate_program(mut program Program) {
 				continue
 			}
 			'READ' {
-				input := read_line('') or { panic('cannot parse input') }
+				input := read_line('') or { '' }
 				program.ctx[instruction.loc] = input.int()
 			}
 			'PRINT' {
@@ -150,9 +164,7 @@ fn evaluate_program(mut program Program) {
 			'END' {
 				return
 			}
-			else {
-				panic('unknown opcode ${instruction.opcode} in line ${pc}')
-			}
+			else {}
 		}
 
 		pc++
