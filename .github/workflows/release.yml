@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - ubuntu
+          - macos
+          - windows
+    runs-on: ${{ matrix.os }}-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Setup V
+        id: setup
+        uses: vlang/setup-v@v1
+        with:
+          check-latest: true
+      - name: Checkout ${{ github.event.repository.name }}
+        id: checkout
+        uses: actions/checkout@v2
+      - name: Check if code is formatted
+        id: fmt
+        run: |
+          v fmt -diff .
+          v fmt -verify .
+      - name: Build ${{ github.event.repository.name }}
+        id: build
+        run: v -prod . -o ./ACSL_Assembly_Emulator-${{ github.ref_name }}-${{ matrix.os }}-x86_64
+      - name: Generate changelog
+        id: generate_changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
+      - name: Release ${{ github.ref_name }}
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ACSL_Assembly_Emulator-*
+          body: ${{ steps.generate_changelog.outputs.changes }}
+          fail_on_unmatched_files: true
