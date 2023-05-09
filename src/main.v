@@ -152,7 +152,7 @@ fn evaluate_program(mut program Program) {
 				continue
 			}
 			'READ' {
-				input := read_line('') or { '' }
+				input := read_line('> ') or { '' }
 				program.ctx[instruction.loc] = input.int()
 			}
 			'PRINT' {
