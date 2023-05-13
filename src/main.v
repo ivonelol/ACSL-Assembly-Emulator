@@ -1,24 +1,30 @@
 module main
 
 import os
+import v.vmod
 import readline { read_line }
 
-const opcodes = [
-	'LOAD',
-	'STORE',
-	'ADD',
-	'SUB',
-	'MULT',
-	'DIV',
-	'BG',
-	'BE',
-	'BL',
-	'BU',
-	'READ',
-	'PRINT',
-	'DC',
-	'END',
-]
+const (
+	embedded_vmod = $embed_file('v.mod', .zlib)
+	metadata      = vmod.decode(embedded_vmod.to_string()) or { panic(err) }
+
+	opcodes       = [
+		'LOAD',
+		'STORE',
+		'ADD',
+		'SUB',
+		'MULT',
+		'DIV',
+		'BG',
+		'BE',
+		'BL',
+		'BU',
+		'READ',
+		'PRINT',
+		'DC',
+		'END',
+	]
+)
 
 struct Instruction {
 	label  string
