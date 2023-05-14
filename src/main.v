@@ -50,6 +50,7 @@ fn main() {
 	fp.arguments_description('filename')
 	additional_args := fp.finalize() or {
 		eprintln(err)
+		println(fp.usage())
 		exit(1)
 	}
 	lines := os.read_lines(additional_args[0]) or {
