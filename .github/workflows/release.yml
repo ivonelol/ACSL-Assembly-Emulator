@@ -42,6 +42,14 @@ jobs:
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
+          excludeTypes:
+            - build
+            - chore
+            - ci
+            - docs
+            - other
+            - style
+            - test
       - name: Release ${{ github.ref_name }}
         id: release
         uses: softprops/action-gh-release@v1
