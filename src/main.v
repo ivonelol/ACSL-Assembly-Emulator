@@ -1,6 +1,7 @@
 module main
 
 import os
+import flag
 import v.vmod
 import readline { read_line }
 
@@ -40,12 +41,19 @@ mut:
 }
 
 fn main() {
-	filename := os.args[1] or {
-		eprintln('no file provided')
+	mut fp := flag.new_flag_parser(os.args)
+	fp.application(metadata.name)
+	fp.version('v' + metadata.version)
+	fp.description(metadata.description)
+	fp.skip_executable()
+	fp.limit_free_args_to_exactly(1)!
+	fp.arguments_description('filename')
+	additional_args := fp.finalize() or {
+		eprintln(err)
 		exit(1)
 	}
-	lines := os.read_lines(filename) or {
-		eprintln('cannot read file ${filename}')
+	lines := os.read_lines(additional_args[0]) or {
+		eprintln('cannot read file ${additional_args[0]}')
 		exit(1)
 	}
 	mut program := parse_program(lines) or {
