@@ -48,6 +48,7 @@ fn main() {
 	fp.skip_executable()
 	fp.limit_free_args_to_exactly(1)!
 	fp.arguments_description('filename')
+	debug_mode := fp.bool('debug', `d`, false, 'debug mode')
 	additional_args := fp.finalize() or {
 		eprintln(err)
 		println(fp.usage())
@@ -62,7 +63,9 @@ fn main() {
 		exit(1)
 	}
 	evaluate_program(mut program)
-	println(program.ctx)
+	if debug_mode {
+		println(program.ctx)
+	}
 }
 
 fn parse_program(lines []string) !Program {
