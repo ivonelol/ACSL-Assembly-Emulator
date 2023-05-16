@@ -76,7 +76,7 @@ fn parse_program(lines []string) !Program {
 		if line == '' {
 			continue
 		}
-		tokens := line.split_any(' \t').filter(it != '')
+		tokens := line.split_nth(';', 2)[0].split_any(' \t').filter(it != '')
 		if tokens.len > 3 {
 			return error('too many tokens in line ${i + 1}')
 		}
